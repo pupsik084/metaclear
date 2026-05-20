@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+.vite
+.cache
+*.local
+.DS_Store
+.idea
+.vscode/*
+!.vscode/extensions.json
+*.log
+coverage
+.pnpm-store
+.env
+.env.*
+!.env.example
+tests/fixtures/_generated
