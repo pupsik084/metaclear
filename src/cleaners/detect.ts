@@ -136,12 +136,24 @@ export function detectFileType(bytes: Uint8Array, mime: string, name: string): F
   }
 
   // --- FLAC ---
-  if (bytes.length >= 4 && bytes[0] === 0x66 && bytes[1] === 0x4c && bytes[2] === 0x61 && bytes[3] === 0x43) {
+  if (
+    bytes.length >= 4 &&
+    bytes[0] === 0x66 &&
+    bytes[1] === 0x4c &&
+    bytes[2] === 0x61 &&
+    bytes[3] === 0x43
+  ) {
     return ffmpeg('audio', 'audio/flac', 'flac', 'FLAC');
   }
 
   // --- OGG ---
-  if (bytes.length >= 4 && bytes[0] === 0x4f && bytes[1] === 0x67 && bytes[2] === 0x67 && bytes[3] === 0x53) {
+  if (
+    bytes.length >= 4 &&
+    bytes[0] === 0x4f &&
+    bytes[1] === 0x67 &&
+    bytes[2] === 0x67 &&
+    bytes[3] === 0x53
+  ) {
     return ffmpeg('audio', 'audio/ogg', 'ogg', 'OGG');
   }
 
@@ -171,20 +183,10 @@ export function detectFileType(bytes: Uint8Array, mime: string, name: string): F
   };
 }
 
-function native(
-  family: SupportedFamily,
-  mime: string,
-  ext: string,
-  label: string,
-): FileTypeInfo {
+function native(family: SupportedFamily, mime: string, ext: string, label: string): FileTypeInfo {
   return { family, mime, ext, cleaner: 'native' satisfies CleanerKind, label };
 }
 
-function ffmpeg(
-  family: SupportedFamily,
-  mime: string,
-  ext: string,
-  label: string,
-): FileTypeInfo {
+function ffmpeg(family: SupportedFamily, mime: string, ext: string, label: string): FileTypeInfo {
   return { family, mime, ext, cleaner: 'ffmpeg' satisfies CleanerKind, label };
 }

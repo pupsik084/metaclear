@@ -7,11 +7,7 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
   ignorePatterns: ['dist', 'node_modules', 'coverage', 'tests/fixtures/_generated'],
   rules: {
     '@typescript-eslint/no-explicit-any': 'error',

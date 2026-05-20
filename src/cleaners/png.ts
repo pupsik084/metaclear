@@ -138,8 +138,14 @@ export function cleanPng(input: Uint8Array): CleanResult {
   }
 
   // Гарантия IEND
-  const hasIend = out.length >= 12 &&
-    String.fromCharCode(out[out.length - 8]!, out[out.length - 7]!, out[out.length - 6]!, out[out.length - 5]!) === 'IEND';
+  const hasIend =
+    out.length >= 12 &&
+    String.fromCharCode(
+      out[out.length - 8]!,
+      out[out.length - 7]!,
+      out[out.length - 6]!,
+      out[out.length - 5]!,
+    ) === 'IEND';
   if (!hasIend) {
     const iendData = new Uint8Array([0, 0, 0, 0, 0x49, 0x45, 0x4e, 0x44]);
     const crc = crc32(iendData, 4, 8);
@@ -155,8 +161,7 @@ export function cleanPng(input: Uint8Array): CleanResult {
     inputSize: input.length,
     outputSize: result.length,
     removedFieldsCount: removed,
-    notes:
-      removed > 0 ? [`Удалено чанков: ${removed} (${removedTypes.join(', ')})`] : [],
+    notes: removed > 0 ? [`Удалено чанков: ${removed} (${removedTypes.join(', ')})`] : [],
   };
 }
 

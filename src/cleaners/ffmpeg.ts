@@ -86,7 +86,9 @@ export async function cleanWithFfmpeg(
   onProgress?.({ phase: 'ffmpeg:exec', ratio: 0 });
   const code = await ffmpeg.exec(args);
   if (code !== 0) {
-    throw new Error(`ffmpeg вышел с кодом ${code}. Возможно, формат не поддерживается этим билдом ffmpeg.wasm.`);
+    throw new Error(
+      `ffmpeg вышел с кодом ${code}. Возможно, формат не поддерживается этим билдом ffmpeg.wasm.`,
+    );
   }
 
   onProgress?.({ phase: 'ffmpeg:read' });
@@ -114,29 +116,9 @@ export async function cleanWithFfmpeg(
 function buildArgs(input: string, output: string, type: FileTypeInfo): string[] {
   if (type.family === 'raw') {
     // RAW → JPG: декодируем + выкидываем метаданные (re-encode неизбежен)
-    return [
-      '-i',
-      input,
-      '-map_metadata',
-      '-1',
-      '-frames:v',
-      '1',
-      '-q:v',
-      '2',
-      output,
-    ];
+    return ['-i', input, '-map_metadata', '-1', '-frames:v', '1', '-q:v', '2', output];
   }
-  return [
-    '-i',
-    input,
-    '-map_metadata',
-    '-1',
-    '-map_chapters',
-    '-1',
-    '-c',
-    'copy',
-    output,
-  ];
+  return ['-i', input, '-map_metadata', '-1', '-map_chapters', '-1', '-c', 'copy', output];
 }
 
 function pickOutputExt(type: FileTypeInfo): string {

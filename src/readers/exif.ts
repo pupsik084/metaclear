@@ -232,10 +232,8 @@ function parseTiff(bytes: Uint8Array, offset: number): TiffReadResult {
   const fields: MetadataField[] = [];
   if (!isTiffHeader(bytes, offset)) return { fields };
   const littleEndian = bytes[offset] === 0x49;
-  const read16 = (o: number) => readU16(bytes, o, littleEndian);
-  const read32 = (o: number) => readU32(bytes, o, littleEndian);
 
-  const ifd0Off = read32(offset + 4);
+  const ifd0Off = readU32(bytes, offset + 4, littleEndian);
   if (ifd0Off === 0 || offset + ifd0Off >= bytes.length) return { fields };
 
   parseIfd(bytes, offset, offset + ifd0Off, littleEndian, fields, 'IFD0', new Set());
@@ -383,7 +381,8 @@ function nameTag(ifd: string, tag: number, value: unknown): MetadataField | null
   // Exif IFD
   if (ifd === 'Exif') {
     if (tag === 0x9003) return mkText('datetime', 'datetime_original', 'Дата съёмки', value, key);
-    if (tag === 0x9004) return mkText('datetime', 'datetime_digitized', 'Дата оцифровки', value, key);
+    if (tag === 0x9004)
+      return mkText('datetime', 'datetime_digitized', 'Дата оцифровки', value, key);
     if (tag === 0x9290) return mkText('datetime', 'subsec_original', 'Доли секунды', value, key);
     if (tag === 0x9201) return mkText('other', 'shutter_speed', 'Выдержка', value, key);
     if (tag === 0x829a) return mkText('other', 'exposure_time', 'Экспозиция', value, key);
@@ -400,7 +399,8 @@ function nameTag(ifd: string, tag: number, value: unknown): MetadataField | null
   if (ifd === 'GPS') {
     if (tag === 0x0001) return mkText('gps', 'gps_lat_ref', 'GPS широта (направление)', value, key);
     if (tag === 0x0002) return mkText('gps', 'gps_lat', 'GPS широта', value, key);
-    if (tag === 0x0003) return mkText('gps', 'gps_lon_ref', 'GPS долгота (направление)', value, key);
+    if (tag === 0x0003)
+      return mkText('gps', 'gps_lon_ref', 'GPS долгота (направление)', value, key);
     if (tag === 0x0004) return mkText('gps', 'gps_lon', 'GPS долгота', value, key);
     if (tag === 0x0005) return mkText('gps', 'gps_alt_ref', 'GPS высота (знак)', value, key);
     if (tag === 0x0006) return mkText('gps', 'gps_alt', 'GPS высота', value, key);
@@ -534,10 +534,30 @@ function pushXmpFields(xmp: string, fields: MetadataField[]): void {
       if (v) pushFieldIfNew(fields, { group, key, label, value: v });
     }
   };
-  tryMatch(/<dc:creator>[\s\S]*?<rdf:li[^>]*>([^<]+)<\/rdf:li>/, 'author', 'xmp_creator', 'Автор (XMP)');
-  tryMatch(/<dc:rights>[\s\S]*?<rdf:li[^>]*>([^<]+)<\/rdf:li>/, 'author', 'xmp_rights', 'Copyright (XMP)');
-  tryMatch(/<xmp:CreatorTool>([^<]+)<\/xmp:CreatorTool>/, 'software', 'xmp_creator_tool', 'ПО (XMP)');
-  tryMatch(/<exif:DateTimeOriginal>([^<]+)<\/exif:DateTimeOriginal>/, 'datetime', 'xmp_datetime', 'Дата (XMP)');
+  tryMatch(
+    /<dc:creator>[\s\S]*?<rdf:li[^>]*>([^<]+)<\/rdf:li>/,
+    'author',
+    'xmp_creator',
+    'Автор (XMP)',
+  );
+  tryMatch(
+    /<dc:rights>[\s\S]*?<rdf:li[^>]*>([^<]+)<\/rdf:li>/,
+    'author',
+    'xmp_rights',
+    'Copyright (XMP)',
+  );
+  tryMatch(
+    /<xmp:CreatorTool>([^<]+)<\/xmp:CreatorTool>/,
+    'software',
+    'xmp_creator_tool',
+    'ПО (XMP)',
+  );
+  tryMatch(
+    /<exif:DateTimeOriginal>([^<]+)<\/exif:DateTimeOriginal>/,
+    'datetime',
+    'xmp_datetime',
+    'Дата (XMP)',
+  );
   tryMatch(/<tiff:Make>([^<]+)<\/tiff:Make>/, 'device', 'xmp_make', 'Производитель (XMP)');
   tryMatch(/<tiff:Model>([^<]+)<\/tiff:Model>/, 'device', 'xmp_model', 'Модель (XMP)');
 }

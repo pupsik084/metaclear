@@ -42,7 +42,10 @@ export function el<K extends keyof HTMLElementTagNameMap>(
   if (props?.attrs) {
     for (const [k, v] of Object.entries(props.attrs)) node.setAttribute(k, v);
   }
-  if (props?.onClick) node.addEventListener('click', props.onClick);
+  if (props?.onClick) {
+    const handler = props.onClick;
+    node.addEventListener('click', (ev: Event) => handler(ev as MouseEvent));
+  }
   for (const c of children) {
     node.append(typeof c === 'string' ? document.createTextNode(c) : c);
   }

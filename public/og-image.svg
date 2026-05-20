@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#070a0f"/>
+      <stop offset="100%" stop-color="#15212f"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#27e8c4"/>
+      <stop offset="100%" stop-color="#1bb999"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="220" cy="315" r="180" fill="none" stroke="url(#cyan)" stroke-width="6" opacity="0.18"/>
+  <circle cx="220" cy="315" r="120" fill="none" stroke="url(#cyan)" stroke-width="4" opacity="0.3"/>
+  <g transform="translate(150 245)">
+    <rect x="0" y="0" width="140" height="140" rx="32" fill="url(#cyan)"/>
+    <path d="M40 60 L70 90 L100 50" stroke="#070a0f" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="370" y="290" fill="#f4f6f8" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="84" font-weight="700" letter-spacing="-2">metaclear</text>
+  <text x="370" y="360" fill="#27e8c4" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="44" font-weight="500">Чистые файлы за один клик</text>
+  <text x="370" y="430" fill="#9fadbc" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="28" font-weight="400">Удаление метаданных из фото и видео — прямо в браузере.</text>
+  <text x="370" y="470" fill="#71839a" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="22" font-weight="400">Файлы не уходят на сервер.</text>
+</svg>

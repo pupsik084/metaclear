@@ -15,7 +15,9 @@ export function renderFileCard(item: ProcessingItem): HTMLElement {
     className: 'truncate text-base font-medium',
     text: item.file.name,
   });
-  const sub = el('div', { className: 'mt-1 flex flex-wrap items-center gap-2 text-xs text-ink-400' });
+  const sub = el('div', {
+    className: 'mt-1 flex flex-wrap items-center gap-2 text-xs text-ink-400',
+  });
   sub.append(el('span', { text: item.type.label }));
   sub.append(el('span', { text: '·' }));
   sub.append(el('span', { text: formatBytes(item.file.size) }));
@@ -81,9 +83,7 @@ export function renderFileCard(item: ProcessingItem): HTMLElement {
     });
     actions.append(cleanBtn);
   } else if (item.status === 'cleaning') {
-    actions.append(
-      el('div', { className: 'text-sm text-ink-300', text: t('card.cleaning') }),
-    );
+    actions.append(el('div', { className: 'text-sm text-ink-300', text: t('card.cleaning') }));
   } else if (item.status === 'done' && item.result && item.downloadUrl) {
     const dl = el('a', {
       className: 'btn btn-primary',

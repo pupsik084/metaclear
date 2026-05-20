@@ -170,6 +170,7 @@ export function cleanJpeg(input: Uint8Array): CleanResult {
     inputSize: input.length,
     outputSize: result.length,
     removedFieldsCount: removed,
-    notes: removed > 0 ? [`Удалено сегментов APPn/COM: ${removed} (${removedMarkers.join(', ')})`] : [],
+    notes:
+      removed > 0 ? [`Удалено сегментов APPn/COM: ${removed} (${removedMarkers.join(', ')})`] : [],
   };
 }

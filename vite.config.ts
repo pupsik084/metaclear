@@ -42,7 +42,8 @@ export default defineConfig({
       manifest: {
         name: 'metaclear',
         short_name: 'metaclear',
-        description: 'Чистые файлы за один клик — удаление метаданных из фото и видео прямо в браузере.',
+        description:
+          'Чистые файлы за один клик — удаление метаданных из фото и видео прямо в браузере.',
         theme_color: '#0b0f14',
         background_color: '#0b0f14',
         display: 'standalone',
@@ -52,7 +53,12 @@ export default defineConfig({
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          {
+            src: 'icons/icon-512-maskable.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
+          },
         ],
       },
       workbox: {

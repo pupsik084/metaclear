@@ -1,4 +1,4 @@
-import { t, onLangChange } from '@/i18n';
+import { getLang, onLangChange, setLang, t } from '@/i18n';
 
 export type AutoDeleteMode = 'never' | 'immediate' | '1min' | '5min' | '30min';
 export type Theme = 'dark' | 'light';
@@ -205,11 +205,9 @@ export function openSettingsModal(): void {
       o.textContent = lbl;
       sel.append(o);
     }
-    import('@/i18n').then(({ getLang, setLang }) => {
-      sel.value = getLang();
-      sel.addEventListener('change', () => {
-        setLang(sel.value as 'ru' | 'en');
-      });
+    sel.value = getLang();
+    sel.addEventListener('change', () => {
+      setLang(sel.value as 'ru' | 'en');
     });
     wrap.append(sel);
     return wrap;

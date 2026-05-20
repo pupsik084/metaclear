@@ -36,7 +36,7 @@ export function renderMetaPreview(meta: ReadMetadataResult): HTMLElement {
     text: t('card.show_all', { n: meta.totalCount }),
   });
   all.append(summary);
-  const allBox = el('div', { className: 'mt-2 max-h-64 overflow-auto rounded-lg bg-black/20 p-3 light:bg-ink-50 light:bg-opacity-100' });
+  const allBox = el('div', { className: 'mt-2 max-h-64 overflow-auto rounded-lg bg-black/20 p-3' });
   for (const f of meta.fields) {
     const row = el('div', { className: 'field-row' });
     row.append(el('span', { className: 'field-label', text: f.label }));
