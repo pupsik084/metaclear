@@ -2,8 +2,26 @@ import { t, onLangChange } from '@/i18n';
 import { addFiles } from './state';
 import { el } from './utils';
 
+let globalDndRegistered = false;
+
+/**
+ * Регистрирует обработчики drag-and-drop на document один раз за жизнь страницы.
+ * createDropZone() может вызываться многократно (на каждый re-render), но
+ * глобальные слушатели должны висеть строго один раз.
+ */
+function ensureGlobalDnd(): void {
+  if (globalDndRegistered) return;
+  globalDndRegistered = true;
+  document.addEventListener('dragover', (e) => e.preventDefault());
+  document.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer?.files?.length) void addFiles(e.dataTransfer.files);
+  });
+}
+
 /** Большая drop-зона — основной экран. */
 export function createDropZone(): HTMLElement {
+  ensureGlobalDnd();
   const wrap = el('div', { className: 'w-full' });
 
   let dragCounter = 0;
@@ -23,6 +41,7 @@ export function createDropZone(): HTMLElement {
   };
   const onDrop = (e: DragEvent): void => {
     e.preventDefault();
+    e.stopPropagation();
     dragCounter = 0;
     box.classList.remove('border-cyan', 'bg-cyan/5');
     if (e.dataTransfer?.files?.length) void addFiles(e.dataTransfer.files);
@@ -66,13 +85,6 @@ export function createDropZone(): HTMLElement {
   onLangChange(refresh);
 
   box.append(icon, title, sub, hint);
-
-  // Глобальный drag-and-drop — на всю страницу
-  document.addEventListener('dragover', (e) => e.preventDefault());
-  document.addEventListener('drop', (e) => {
-    e.preventDefault();
-    if (e.dataTransfer?.files?.length) void addFiles(e.dataTransfer.files);
-  });
 
   wrap.append(box);
   return wrap;

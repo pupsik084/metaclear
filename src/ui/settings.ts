@@ -89,8 +89,13 @@ export function openSettingsModal(): void {
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
 
+  let unsubLang: (() => void) | null = null;
   const close = (): void => {
     document.removeEventListener('keydown', onKey);
+    if (unsubLang) {
+      unsubLang();
+      unsubLang = null;
+    }
     overlay.remove();
   };
   const onKey = (e: KeyboardEvent): void => {
@@ -213,8 +218,7 @@ export function openSettingsModal(): void {
     return wrap;
   };
 
-  const unsub = onLangChange(() => render());
-  overlay.addEventListener('remove', () => unsub());
+  unsubLang = onLangChange(() => render());
 
   render();
   document.body.append(overlay);

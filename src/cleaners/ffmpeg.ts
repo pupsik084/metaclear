@@ -32,22 +32,29 @@ let loading: Promise<FfmpegInstance> | null = null;
 const CORE_VERSION = '0.12.6';
 const CORE_BASE = `https://unpkg.com/@ffmpeg/core@${CORE_VERSION}/dist/esm`;
 
-async function getFfmpeg(
-  onProgress?: (p: { phase: string; ratio?: number }) => void,
-): Promise<FfmpegInstance> {
+// Текущий приёмник прогресса. ffmpeg.on('progress') ставится один раз и
+// читает эту переменную, чтобы каждый вызов cleanWithFfmpeg получал свой
+// колбэк, а не залипший от первого вызова.
+type ProgressCb = (p: { phase: string; ratio?: number }) => void;
+let currentOnProgress: ProgressCb | null = null;
+
+async function getFfmpeg(): Promise<FfmpegInstance> {
   if (cached) return cached;
   if (loading) return loading;
 
   loading = (async () => {
-    onProgress?.({ phase: 'ffmpeg:import' });
+    currentOnProgress?.({ phase: 'ffmpeg:import' });
     const mod = (await import('@ffmpeg/ffmpeg')) as unknown as FfmpegLib;
     const ffmpeg = new mod.FFmpeg();
 
     ffmpeg.on('progress', ({ progress }) => {
-      onProgress?.({ phase: 'ffmpeg:exec', ratio: Math.max(0, Math.min(1, progress)) });
+      currentOnProgress?.({
+        phase: 'ffmpeg:exec',
+        ratio: Math.max(0, Math.min(1, progress)),
+      });
     });
 
-    onProgress?.({ phase: 'ffmpeg:load' });
+    currentOnProgress?.({ phase: 'ffmpeg:load' });
     await ffmpeg.load({
       coreURL: `${CORE_BASE}/ffmpeg-core.js`,
       wasmURL: `${CORE_BASE}/ffmpeg-core.wasm`,
@@ -70,47 +77,52 @@ export async function cleanWithFfmpeg(
   type: FileTypeInfo,
   onProgress?: (p: { phase: string; ratio?: number }) => void,
 ): Promise<CleanResult> {
-  const ffmpeg = await getFfmpeg(onProgress);
-
-  const ext = type.ext || guessExt(type.mime);
-  const inputName = `input.${ext}`;
-  const outputExt = pickOutputExt(type);
-  const outputName = `output.${outputExt}`;
-
-  onProgress?.({ phase: 'ffmpeg:write' });
-  await ffmpeg.writeFile(inputName, input);
-
-  // Для RAW: ffmpeg может декодировать через image2 → выходом будет JPG.
-  // Для всего остального — copy.
-  const args = buildArgs(inputName, outputName, type);
-  onProgress?.({ phase: 'ffmpeg:exec', ratio: 0 });
-  const code = await ffmpeg.exec(args);
-  if (code !== 0) {
-    throw new Error(
-      `ffmpeg вышел с кодом ${code}. Возможно, формат не поддерживается этим билдом ffmpeg.wasm.`,
-    );
-  }
-
-  onProgress?.({ phase: 'ffmpeg:read' });
-  const out = await ffmpeg.readFile(outputName);
-  const data = out instanceof Uint8Array ? out : new TextEncoder().encode(out);
-
-  // Уборка
+  currentOnProgress = onProgress ?? null;
   try {
-    await ffmpeg.deleteFile(inputName);
-    await ffmpeg.deleteFile(outputName);
-  } catch {
-    // не критично
-  }
+    const ffmpeg = await getFfmpeg();
 
-  return {
-    output: data,
-    outputMime: pickOutputMime(type, outputExt),
-    outputExt,
-    inputSize: input.length,
-    outputSize: data.length,
-    notes: ['Обработка через ffmpeg.wasm: -map_metadata -1 -map_chapters -1 -c copy'],
-  };
+    const ext = type.ext || guessExt(type.mime);
+    const inputName = `input.${ext}`;
+    const outputExt = pickOutputExt(type);
+    const outputName = `output.${outputExt}`;
+
+    onProgress?.({ phase: 'ffmpeg:write' });
+    await ffmpeg.writeFile(inputName, input);
+
+    // Для RAW: ffmpeg может декодировать через image2 → выходом будет JPG.
+    // Для всего остального — copy.
+    const args = buildArgs(inputName, outputName, type);
+    onProgress?.({ phase: 'ffmpeg:exec', ratio: 0 });
+    const code = await ffmpeg.exec(args);
+    if (code !== 0) {
+      throw new Error(
+        `ffmpeg вышел с кодом ${code}. Возможно, формат не поддерживается этим билдом ffmpeg.wasm.`,
+      );
+    }
+
+    onProgress?.({ phase: 'ffmpeg:read' });
+    const out = await ffmpeg.readFile(outputName);
+    const data = out instanceof Uint8Array ? out : new TextEncoder().encode(out);
+
+    // Уборка
+    try {
+      await ffmpeg.deleteFile(inputName);
+      await ffmpeg.deleteFile(outputName);
+    } catch {
+      // не критично
+    }
+
+    return {
+      output: data,
+      outputMime: pickOutputMime(type, outputExt),
+      outputExt,
+      inputSize: input.length,
+      outputSize: data.length,
+      notes: ['Обработка через ffmpeg.wasm: -map_metadata -1 -map_chapters -1 -c copy'],
+    };
+  } finally {
+    currentOnProgress = null;
+  }
 }
 
 function buildArgs(input: string, output: string, type: FileTypeInfo): string[] {
