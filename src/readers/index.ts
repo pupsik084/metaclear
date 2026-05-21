@@ -1,0 +1,1 @@
+export { readMetadata } from './exif';
